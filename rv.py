@@ -1,14 +1,15 @@
 import numpy as np
-import scipy
+from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 class RV:
-    def __init__(self, rv=None, fn=None, lhs=None, rhs=None):
+    def __init__(self, rv=None, fn=None, lhs=None, rhs=None, cval=None):
         self.rv = rv
         self.fn = fn
         self.lhs = lhs
         self.rhs = rhs
+        self.cval = cval
 
     @classmethod
     def from_rv(cls, rv):
@@ -19,10 +20,13 @@ class RV:
         return cls(fn=fn, lhs=lhs, rhs=rhs)
 
     @classmethod
-    def constant(cls, value):
-        return cls.from_rv(scipy.stats.norm(loc=value, scale=0))
+    def from_constant(cls, value):
+        return cls(fn=None, lhs=None, rhs=None, cval=value)
 
     def sample(self, samples=10000):
+        if (self.cval is None) == False:
+            return np.full(samples, self.cval)
+
         if self.rv is None:
             left_samples = self.lhs.sample(samples)
             if self.rhs is None:
